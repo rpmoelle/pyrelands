@@ -3,23 +3,25 @@ using System.Collections;
 
 public class teleport : MonoBehaviour {
     public GameObject dot;
-    int waitCycles = 30;
+    int waitCycles = 60;
     int curWait = 0;
     bool moveDot;
-    Vector2 defaultDest = new Vector2(-4.33f, -1.59f);
+    Vector2 defaultDest = new Vector2(-3.89f, -0.77f);
     public GameObject navBounds;
     public bool inBounds;
-
+    GameObject player;
+    public bool disable;
    
 	// Use this for initialization
 	void Start () {
         inBounds = true;
         //dot = this.gameObject;
+        player = GameObject.Find("Player");
 	}
 	
 	// Update is called once per frame
 	void Update () {
-        if (Input.GetMouseButton(0))
+        if (Input.GetMouseButton(0) && !disable)
         {
             curWait++;
             //if there's a click
@@ -33,6 +35,7 @@ public class teleport : MonoBehaviour {
                 //if player isn't clicking on anything, then they want to teleport 
                 //play transition to dot anim
                 //make dot visible
+                Debug.Log("TELEPORTING");
                 dot.GetComponent<SpriteRenderer>().color = new Color(dot.GetComponent<SpriteRenderer>().color.r, dot.GetComponent<SpriteRenderer>().color.g, dot.GetComponent<SpriteRenderer>().color.b, 1f);
                 //move the dot with the cursor
                 moveDot = true;
@@ -55,6 +58,7 @@ public class teleport : MonoBehaviour {
             //they want to teleport here
             if (inBounds)
             {
+               
                 this.transform.position = dot.transform.position;
                 //make dot invisible
                 dot.GetComponent<SpriteRenderer>().color = new Color(1f,1f,1f,0f);
@@ -64,9 +68,12 @@ public class teleport : MonoBehaviour {
             }
             else
             {
+                
                 //not in bounds
                 //take player to the default location, the ocustone
-                this.transform.position = defaultDest;
+                //this.transform.position = defaultDest;
+                player.gameObject.transform.position = new Vector3(defaultDest.x, defaultDest.y, 0f);
+               // Debug.Log(this.gameObject.transform.position);
                 //make dot invisible
                 dot.GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 0f);
                 curWait = 0;

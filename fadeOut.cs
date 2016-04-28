@@ -3,6 +3,7 @@ using System.Collections;
 
 public class fadeOut : MonoBehaviour {
 
+    public GameObject sceneloader;
     public SpriteRenderer fader;
     bool fadedOut;
     bool fadeIn;
@@ -10,24 +11,26 @@ public class fadeOut : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         fader = this.gameObject.GetComponent<SpriteRenderer>();
+        sceneloader = GameObject.Find("bg");
 	}
 	
 	// Update is called once per frame
 	void Update () {
-      
+
         if(!fadedOut && fader.color.a > 0f)
         {
             //this is the fade in that plays on entry ot the scene
-            Debug.Log(fader.color.a);
+           // Debug.Log(fader.color.a);
             fader.color = new Color(fader.color.r, fader.color.g, fader.color.b, fader.color.a - .005f);
             if (fader.color.a <= .006)
             {
                 //check if you should fadeOut
-                Debug.Log("asldfkjnalskdjvqlkjfd");
+                //Debug.Log("asldfkjnalskdjvqlkjfd");
                 fadedOut = true;
             }
         }
-        Debug.Log("here");
+      
+
         //If player clicks, fade out to next scene
         if (fadedOut)
         {
@@ -44,7 +47,9 @@ public class fadeOut : MonoBehaviour {
             if(fader.color.a == 1f)
             {
                 //if its faded in, load next scene
-                Application.LoadLevel(1);
+                Debug.Log("Calling Next Scene");
+                sceneloader.GetComponent<loadWorld>().ActivateScene();
+                //Application.LoadLevel(1);
             }
         }
 	}

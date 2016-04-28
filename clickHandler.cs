@@ -37,12 +37,18 @@ public class clickHandler : MonoBehaviour {
     bool playingUntie;
     bool playingWeep;
     public Animator boat;
+    bool playingEnd;
+    public Animator title;
+    bool last;
+    bool clicked;
+    public GameObject fader;
 
     void endScene()
     {
         //just an animation for the scene
         //boat
-        boat.SetBool("end", true);
+        playingEnd = true;
+        boat.SetTrigger("endtrig");
         //reydo and oodaaq
         reydoAnimator.SetBool("end", true);
         oodaaq.SetBool("end", true);
@@ -50,7 +56,7 @@ public class clickHandler : MonoBehaviour {
 
     void teleport(Vector2 d)
     {
-       
+       //disable hold to click teleporting
         if(d == dest)
         {
             teleOrig = true;
@@ -65,6 +71,7 @@ public class clickHandler : MonoBehaviour {
         //plays teleport animation by itself
         if (!moveDot)
         {
+            player.GetComponent<teleport>().disable = true;
             Debug.Log("teleporting");
             //fade out idle sprite
             Transform r = player.transform.Find("Reydo");
@@ -72,13 +79,14 @@ public class clickHandler : MonoBehaviour {
             r.GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 0f);
             o.GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 0f);
             //make teleport dot visible
-            Transform tele = player.transform.Find("teleporter");
-            tele.GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 1f);
+            //Transform tele = player.transform.Find("teleporter");
+            //tele.GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 1f);
             //move teleport dot (in update)
             moveDot = true;
         }
         else
         {
+            //player.GetComponent<teleport>().disable = false;
             Debug.Log("stop");
             //we have arrived
             //fade out idle sprite
@@ -87,8 +95,8 @@ public class clickHandler : MonoBehaviour {
             r.GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 1f);
             o.GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 1f);
             //make teleport dot visible
-            Transform tele = player.transform.Find("teleporter");
-            tele.GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 0f);
+            //Transform tele = player.transform.Find("teleporter");
+            //tele.GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 0f);
             //move teleport dot (in update)
             moveDot = false;
             //play anim
@@ -98,15 +106,17 @@ public class clickHandler : MonoBehaviour {
                 oodaaq.SetBool("weep", true);
                 playingWeep = true;
             }
-            else if (teleBoat && !(narrativeDriver.GetComponent<narrativeDriver>().hasArms && narrativeDriver.GetComponent<narrativeDriver>().hasGoo))
+            else if (teleBoat && !(narrativeDriver.GetComponent<narrativeDriver>().hasGoo))
             {
-                
-                reydoAnimator.SetBool("cant", true);
-                oodaaq.SetBool("cant", true);
+                Debug.Log("CANT DO THAT");
+                //reydoAnimator.SetBool("cant", true);
+                //oodaaq.SetBool("cant", true);
+                reydoAnimator.SetTrigger("untie");
+                oodaaq.SetTrigger("untie");
                 teleBoat = false;
                 playingUntie = true;
             }
-            else if(teleBoat && (narrativeDriver.GetComponent<narrativeDriver>().hasArms && narrativeDriver.GetComponent<narrativeDriver>().hasGoo))
+            else if(teleBoat && (narrativeDriver.GetComponent<narrativeDriver>().hasGoo))
             {
                 //escape!
                 Debug.Log("escape");
@@ -129,7 +139,8 @@ public class clickHandler : MonoBehaviour {
         //bloom = bloomer.GetComponent<Animation>();
         me = this.gameObject.GetComponent<SpriteRenderer>();
         narrativeDriver = GameObject.Find("narrativeDriver");
-        dest = new Vector2(3.12f, -5.13f);
+        dest = new Vector2(4.32f, -5.7f);
+        fader = GameObject.Find("Title/Letters/fader");
         //this avoids having to click twice to see the pullout image for stones without bloom anims
         if (!isAnim)
         {
@@ -144,7 +155,7 @@ public class clickHandler : MonoBehaviour {
     bool canUntie()
     {
         Debug.Log("Untie");
-        if(narrativeDriver.GetComponent<narrativeDriver>().hasArms && narrativeDriver.GetComponent<narrativeDriver>().hasGoo)
+        if(narrativeDriver.GetComponent<narrativeDriver>().hasGoo)
         {
             return true;
         }
@@ -152,8 +163,33 @@ public class clickHandler : MonoBehaviour {
     }
 
 	// Update is called once per frame
-	void Update () {
-        //Debug.Log(reydoAnimator);
+	void FixedUpdate () {
+        if (Input.anyKeyDown)
+        {
+            if (showingClose && clicked)
+            {
+                Debug.Log("GO AWAY");
+                showingClose = false;
+                clicked = false;
+                closeUp.color = new Color(closeUp.color.r, closeUp.color.g, closeUp.color.b, 0f);
+            }
+        }
+       
+        if (playingEnd && boat.gameObject.transform.localScale.x < .5f)
+        {
+            Debug.Log("fadeOut");
+            title.SetTrigger("fadeOut");
+            playingEnd = false;
+            last = true;
+            
+        }
+        if(last && fader.gameObject.GetComponent<SpriteRenderer>().color.a < 1f)
+        {
+            Debug.Log("DOND");
+            last = false;
+            
+            //Application.LoadLevel(2);
+        }
         if (moveDot)
         {
             //player is automatically teleporting
@@ -178,16 +214,7 @@ public class clickHandler : MonoBehaviour {
         }
 
         
-        if (playingUntie && !reydoAnimator.GetCurrentAnimatorStateInfo(0).IsName("reydoCantUntie"))
-        {
-            //Debug.Log("should reset");
-            //reset anims
-            //teleBoat = false;
-            reydoAnimator.SetBool("cant", false);
-            oodaaq.SetBool("cant", false);
-            playingUntie = false;
-
-        }
+      
 
         if (playingWeep && !reydoAnimator.GetCurrentAnimatorStateInfo(0).IsName("reydoIdle"))
         {
@@ -197,12 +224,16 @@ public class clickHandler : MonoBehaviour {
             reydoAnimator.SetBool("doneWeep", true);
             reydoAnimator.SetBool("weep", false);
             oodaaq.SetBool("weep", false);
-            playingWeep = false; ;
+            playingWeep = false;
+            player.GetComponent<teleport>().disable = false;
 
         }
-        
+
+       
+
         if (Input.GetMouseButtonDown(0))
         {
+            
             //if there's a click
             //cast a ray
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -217,13 +248,13 @@ public class clickHandler : MonoBehaviour {
                     {
                         //teleport here
                         teleport(boatDest);
-                        Debug.Log("boat dest is)" + boatDest);
+                        //Debug.Log("boat dest is)" + boatDest);
                     }
 
-                    if (this.name == "originalsStone" && !wept)
+                    if (this.name == "originalsStone")
                     {
                         //this is the player attempting to lube arms
-                        wept = true;
+                        //wept = true;
                         
                         //teleport player to the stone if they arent there already
                         teleport(dest);
@@ -235,40 +266,44 @@ public class clickHandler : MonoBehaviour {
                     if (hit.collider.gameObject.name == "prophetStone")
                     {
                         narrativeDriver.GetComponent<narrativeDriver>().hasArms = true;
-                        Debug.Log(narrativeDriver.GetComponent<narrativeDriver>().hasArms + "ARMS");
+                        //Debug.Log(narrativeDriver.GetComponent<narrativeDriver>().hasArms + "ARMS");
                     }
                     else if (this.gameObject.name == "originalsStone")
                     {
                         narrativeDriver.GetComponent<narrativeDriver>().hasGoo = true;
-                        Debug.Log(narrativeDriver.GetComponent<narrativeDriver>().hasGoo + "GOO");
+                        //Debug.Log(narrativeDriver.GetComponent<narrativeDriver>().hasGoo + "GOO");
                     }
 
                     //play the bloom animation for these characters, if they havent appeared yet
-                    if ((!hasAppeared && isAnim) && this.gameObject.name != "exitStone")
+                    if (isAnim && this.gameObject.name != "exitStone")
                     {
-                        ps.Play();
+                        Debug.Log("ANIMATING NOW");
+                       // ps.Play();
                         fadein = true;
-                        bloomer.SetBool("bloom", true);
+                        bloomer.SetTrigger("bloomTrig");
+                        //bloomer.SetBool("bloom", true);
                         //these characters have appeared, after animation cascade, don't reeappear
-                        hasAppeared = true;
-                        bloomer.SetBool("reveal", true);
-                        bloomer.SetBool("fade", true);
+                        //hasAppeared = true;
+                       // bloomer.SetBool("reveal", true);
+                       // bloomer.SetBool("fade", true);
                         //cancel click mechanics while playing animation
                         //noClick = true;
                     }
                     //show the close up instead of the animation
-                    else if (hasAppeared && !showingClose)
+                    if (!showingClose && (gameObject.name != "exitStone" && !clicked))
                     {
-                        
+                        Debug.Log("KSDJNOSKDJVN");
                         closeUp.color = new Color(closeUp.color.r, closeUp.color.g, closeUp.color.b, 1f);
                         showingClose = true;
+                        clicked = true;
                     }
-                    else if (hasAppeared && showingClose)
+                   /* else if (hasAppeared && showingClose)
                     {
                         closeUp.color = new Color(closeUp.color.r, closeUp.color.g, closeUp.color.b, 0f);
                         showingClose = false;
-                    }
+                    }*/
                 }
+              
             } 
         }
         //begin fading in the glow
@@ -286,7 +321,7 @@ public class clickHandler : MonoBehaviour {
         {
             if (this.bloomer.GetCurrentAnimatorStateInfo(0).IsName(finishedAnim) && !haveBowed)
             {
-
+                Debug.Log(gameObject.name);
                 //reydo.color = new Color(reydo.color.r, reydo.color.g, reydo.color.b, 0f);
                 oodaaq.SetBool("bow", true);
                 haveBowed = true;
@@ -339,5 +374,17 @@ public class clickHandler : MonoBehaviour {
             //oodaaq.SetBool("bow", false);
            //oodaaq.SetBool("doneBowing", true);
         }*/
+        if (playingUntie && !reydoAnimator.GetCurrentAnimatorStateInfo(0).IsName("reydoCantUntie"))
+        {
+            Debug.Log("should reset" + !reydoAnimator.GetCurrentAnimatorStateInfo(0).IsName("reydoCantUntie"));
+            //reset anims
+            //teleBoat = false;
+            //reydoAnimator.SetBool("doneCant", true);
+            //reydoAnimator.SetBool("cant", false);
+            //oodaaq.SetBool("cant", false);
+            playingUntie = false;
+
+        }
+
     }
 }
