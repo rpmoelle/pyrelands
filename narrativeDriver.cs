@@ -6,13 +6,15 @@ public class narrativeDriver : MonoBehaviour {
     public bool hasGoo;
     public bool fadeInOrigStone;
     GameObject o;
+    public GameObject rad;
 
 	// Use this for initialization
 	void Start () {
         hasArms = false;
         hasGoo = false;
         o = GameObject.Find("originalsStone");
-	}
+        rad = GameObject.Find("originalsStone/radius");
+    }
 	
 	// Update is called once per frame
 	void Update () {

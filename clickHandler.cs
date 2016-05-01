@@ -42,6 +42,7 @@ public class clickHandler : MonoBehaviour {
     bool last;
     bool clicked;
     public GameObject fader;
+    public GameObject radius;
 
     void endScene()
     {
@@ -82,7 +83,7 @@ public class clickHandler : MonoBehaviour {
             //Transform tele = player.transform.Find("teleporter");
             //tele.GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 1f);
             //move teleport dot (in update)
-            moveDot = true;
+           // moveDot = true;
         }
         else
         {
@@ -139,7 +140,7 @@ public class clickHandler : MonoBehaviour {
         //bloom = bloomer.GetComponent<Animation>();
         me = this.gameObject.GetComponent<SpriteRenderer>();
         narrativeDriver = GameObject.Find("narrativeDriver");
-        dest = new Vector2(4.32f, -5.7f);
+        dest = new Vector2(4.51f, -5.51f);
         fader = GameObject.Find("Title/Letters/fader");
         //this avoids having to click twice to see the pullout image for stones without bloom anims
         if (!isAnim)
@@ -152,7 +153,7 @@ public class clickHandler : MonoBehaviour {
         }
     }
 	
-    bool canUntie()
+    /*bool canUntie()
     {
         Debug.Log("Untie");
         if(narrativeDriver.GetComponent<narrativeDriver>().hasGoo)
@@ -160,20 +161,12 @@ public class clickHandler : MonoBehaviour {
             return true;
         }
         return false;
-    }
+    }*/
 
 	// Update is called once per frame
-	void FixedUpdate () {
-        if (Input.anyKeyDown)
-        {
-            if (showingClose && clicked)
-            {
-                Debug.Log("GO AWAY");
-                showingClose = false;
-                clicked = false;
-                closeUp.color = new Color(closeUp.color.r, closeUp.color.g, closeUp.color.b, 0f);
-            }
-        }
+	void Update () {
+        
+      
        
         if (playingEnd && boat.gameObject.transform.localScale.x < .5f)
         {
@@ -229,9 +222,86 @@ public class clickHandler : MonoBehaviour {
 
         }
 
-       
+       if (Input.GetKeyDown(KeyCode.Space))
+        {
+           
+            if (showingClose)
+            {
+                Debug.Log("Closing close up");
+                closeUp.color = new Color(closeUp.color.r, closeUp.color.g, closeUp.color.b, 0f);
+                showingClose = false;
+                if (isAnim)
+                {
+                    //play animation
+                    fadein = true;
+                    
+                    if(this.gameObject.name == "originalsStone")
+                    {
+                        Debug.Log("At originals stone");
+                        if (this.gameObject.GetComponent<SpriteRenderer>().color.a > 0f)
+                        {
+                            Debug.Log("HAVE GOO");
+                            narrativeDriver.GetComponent<narrativeDriver>().hasGoo = true;
+                            reydoAnimator.SetBool("weep", true);
+                            oodaaq.SetBool("weep", true);
+                            playingWeep = true;
+                        }
+                        
+                    }
+                    else if(this.gameObject.name == "exitStone")
+                    {
+                        if (this.gameObject.name == "exitStone" && !(narrativeDriver.GetComponent<narrativeDriver>().hasGoo))
+                        {
+                            Debug.Log("CANT DO THAT");
+                            //reydoAnimator.SetBool("cant", true);
+                            //oodaaq.SetBool("cant", true);
+                            reydoAnimator.SetTrigger("untie");
+                            oodaaq.SetTrigger("untie");
 
-        if (Input.GetMouseButtonDown(0))
+                            playingUntie = true;
+                        }
+                        else if (this.gameObject.name == "exitStone" && (narrativeDriver.GetComponent<narrativeDriver>().hasGoo))
+                        {
+                            //escape!
+                            Debug.Log("escape");
+                            reydoAnimator.SetBool("leave", true);
+                            oodaaq.SetBool("leave", true);
+                            //dissolve rope
+                            GameObject.Find("rope").GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 0f);
+                            endScene();
+                        }
+                    }
+                    else
+                    {
+                        bloomer.SetTrigger("bloomTrig");
+                    }
+                    
+                  
+                }
+            }
+           else if (radius != null && radius.GetComponent<radiusCollisions>().collid)
+            {
+                
+                if (!showingClose && (gameObject.name != "originalsStone"))
+                {
+                    
+                    closeUp.color = new Color(closeUp.color.r, closeUp.color.g, closeUp.color.b, 1f);
+                    showingClose = true;
+                   // clicked = true;
+                }
+                else if(!showingClose && (gameObject.name == "originalsStone"))
+                {
+                    if(this.gameObject.GetComponent<SpriteRenderer>().color.a > 0f)
+                    {
+                        Debug.Log("Close up now showing");
+                        closeUp.color = new Color(closeUp.color.r, closeUp.color.g, closeUp.color.b, 1f);
+                        showingClose = true;
+                    }
+                }
+            }
+        }
+
+       /* if (Input.GetMouseButtonDown(0))
         {
             
             //if there's a click
@@ -290,22 +360,16 @@ public class clickHandler : MonoBehaviour {
                         //noClick = true;
                     }
                     //show the close up instead of the animation
-                    if (!showingClose && (gameObject.name != "exitStone" && !clicked))
-                    {
-                        Debug.Log("KSDJNOSKDJVN");
-                        closeUp.color = new Color(closeUp.color.r, closeUp.color.g, closeUp.color.b, 1f);
-                        showingClose = true;
-                        clicked = true;
-                    }
+                    
                    /* else if (hasAppeared && showingClose)
                     {
                         closeUp.color = new Color(closeUp.color.r, closeUp.color.g, closeUp.color.b, 0f);
                         showingClose = false;
-                    }*/
+                    }
                 }
               
             } 
-        }
+        }*/
         //begin fading in the glow
         if (fadein && glow.color.a < 1)
         {
@@ -345,11 +409,11 @@ public class clickHandler : MonoBehaviour {
                     narrativeDriver.GetComponent<narrativeDriver>().fadeInOrigStone = true;
                     o.GetComponent<PolygonCollider2D>().enabled = true;
                 }
-                else if(this.gameObject.name == "originalsStone")
+                /*else if(this.gameObject.name == "originalsStone")
                 {
                     narrativeDriver.GetComponent<narrativeDriver>().hasGoo = true;
                     Debug.Log(narrativeDriver.GetComponent<narrativeDriver>().hasGoo + "GOO");
-                }
+                }*/
             }
             /*if (haveBowed && !oodaaq.GetCurrentAnimatorStateInfo(0).IsName("bowAnim"))
             {

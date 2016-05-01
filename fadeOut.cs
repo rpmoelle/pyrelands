@@ -16,7 +16,10 @@ public class fadeOut : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-
+        if (Input.GetKey(KeyCode.Escape))
+        {
+            Application.Quit();
+        }
         if(!fadedOut && fader.color.a > 0f)
         {
             //this is the fade in that plays on entry ot the scene
@@ -40,11 +43,12 @@ public class fadeOut : MonoBehaviour {
                 fadeIn = true;
             }
         }
+        Debug.Log(fader.color.a);
         //fade in, then go to next scene
         if (fadeIn && fader.color.a < 1f)
         {
-            fader.color = new Color(fader.color.r, fader.color.g, fader.color.b, fader.color.a + .005f);
-            if(fader.color.a == 1f)
+            fader.color = new Color(fader.color.r, fader.color.g, fader.color.b, fader.color.a + .002f);
+            if(fader.color.a >= 1f)
             {
                 //if its faded in, load next scene
                 Debug.Log("Calling Next Scene");

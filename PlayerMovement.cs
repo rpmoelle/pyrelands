@@ -9,9 +9,12 @@ public class PlayerMovement : MonoBehaviour {
     Animator reydoAnim;
     Animator oodaaqAnim;
     AudioSource walking;
-    
+   
     //Scene logic
-
+    void OnCollisionEnter2D(Collision2D col)
+    {
+        Debug.Log(col.gameObject.name);
+    }
 
     // Use this for initialization
     void Start () {
@@ -24,16 +27,16 @@ public class PlayerMovement : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        //ESCAPE TO QUIT
+        //ESCAPE TO "MENU"
         if (Input.GetKey(KeyCode.Escape))
         {
-            Application.Quit();
+            Application.LoadLevel(0);
         }
         //Four way motion
         if (Input.GetKey(KeyCode.W))
         {
             //Move player "UP"
-            player.transform.position = new Vector2(player.transform.position.x, player.transform.position.y + .05f);
+            player.transform.position = new Vector2(player.transform.position.x, player.transform.position.y + .02f);
             //Animator transition
             //Reydo
             reydoAnim.SetBool("walkUp", true);
@@ -54,7 +57,8 @@ public class PlayerMovement : MonoBehaviour {
         else if (Input.GetKey(KeyCode.S))
         {
             //Move player "DOWN"
-            player.transform.position = new Vector2(player.transform.position.x, player.transform.position.y - .05f);
+            
+            player.transform.position = new Vector2(player.transform.position.x, player.transform.position.y - .02f);
             //Animator transition
             //Reydo
             reydoAnim.SetBool("walkUp", false);
@@ -71,6 +75,7 @@ public class PlayerMovement : MonoBehaviour {
             {
                 walking.Play();
             }
+
         }
        else if (Input.GetKey(KeyCode.A))
         {
@@ -97,7 +102,7 @@ public class PlayerMovement : MonoBehaviour {
         else if (Input.GetKey(KeyCode.D))
         {
             //Move player "RIGHT"
-            player.transform.position = new Vector2(player.transform.position.x + .05f, player.transform.position.y);
+            player.transform.position = new Vector2(player.transform.position.x + .02f, player.transform.position.y);
             //Animator transition
             //Reydo
             reydoAnim.SetBool("walkUp", false);
